@@ -1,6 +1,12 @@
 import os
 from os import listdir
-faceDir = "./Files/smallerFaces/"
+import time
+import numpy as np
+faceDir = "./Files/debugFaces/"
+uniqueFaces = 0
+eigenfaces = []
+names = []
+totalNames = []
 
 def read_pgm(file):
     line = file.readline()
@@ -20,12 +26,16 @@ def read_pgm(file):
 
 def load_images():
     databaseArray = []
+    global uniqueFaces
+    global totalNames
     for image in os.listdir(faceDir):
-        print(image)
         file = open(faceDir + image, 'rb')
+        if (image[len(image) - 8 : len(image) - 4]) == "0001":
+            uniqueFaces += 1
         # print(file.read())
         array = read_pgm(file)
         if array != False:
+            totalNames.append(image[:len(image) - 9])
             if len(array) != 4096:
                 print("ERROR")
             else:
@@ -51,11 +61,9 @@ def calculateMean(imgArr):
 
 def calculateCovariance(meanCentered):
     returnVal = []
-    products = []
-    sums = []
-    covars = []
     for row in range(len(meanCentered[0])):
         newRow = []
+        start = time.time()
         for col in range(len(meanCentered[0])):
             if col == row:
                 #Calculate variance
@@ -66,19 +74,44 @@ def calculateCovariance(meanCentered):
                 newRow.append(var)
             else:
                 #Calculate covariance
-                if ((row * col) in products) and ((row + col) in sums):
-                    newRow.append(covars[products.index(row * col)])
-                else:
                     covar = 0
                     for i in range(len(meanCentered)):
                         covar += meanCentered[i][col] * meanCentered[i][row]
                     covar = covar / (len(meanCentered) - 1)
                     newRow.append(covar)
-                    products.append(row * col)
-                    sums.append(row + col)
-                    covars.append(covar)
+        end = time.time()
         returnVal.append(newRow)
         print("\r",end="")
-        print(row, end="")
+        print(str(row) + ", Time elapsed: " + str(end - start), end="")
     print("\n")
     return returnVal
+
+def parseFaces(w,v):
+    global eigenfaces
+    global names
+    global totalNames
+    indexes = []
+    for i in range(len(w)):
+        indexes.append(i)
+    indicies = np.array(indexes)
+    sortKey = w.argsort()
+    values = w[sortKey]
+    vectors = v[sortKey]
+    indicies = indicies[sortKey]
+    np.flip(vectors,0)
+    np.flip(values,0)
+    np.flip(indicies,0)
+    print(indicies)
+    values = values[:uniqueFaces]
+    vectors = vectors[:uniqueFaces]
+    indicies = vectors[:uniqueFaces]
+    arrNames = np.array(totalNames)
+    for i in range(uniqueFaces):
+        names.append(arrNames[int(indicies[i])])
+        eigenfaces.append(vectors[i])
+
+def displayNames():
+    global names
+    for name in names:
+        print("Faces found: " + name)
+

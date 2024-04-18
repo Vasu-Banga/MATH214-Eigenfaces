@@ -3,6 +3,9 @@ from helper_functions import *
 import numpy as np
 from numpy.linalg import eig
 
+
+#Check if data has been parsed before
+
 print("Loading images: ")
 imageArray = load_images()
 print("Done loading images")
@@ -15,7 +18,12 @@ covarMatrix = calculateCovariance(meanCentered)
 print("Covariance calculated")
 print("Loading eigenvalues and eigenvectors: ")
 convertedMatrix = np.array(covarMatrix)
+print("Matrix successfully converted")
 w,v = eig(convertedMatrix)
 print("Found eigenvalues and eigenvectors")
-print("E-Values",w)
-print("E-vectors",v)
+print("Sorting faces")
+parseFaces(w,v)
+print("Faces sorted")
+displayNames()
+
+
