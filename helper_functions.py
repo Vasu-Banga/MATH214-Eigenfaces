@@ -70,14 +70,14 @@ def calculateCovariance(meanCentered):
                 var = 0
                 for i in range(len(meanCentered)):
                     var += pow(meanCentered[i][col],2)
-                var = var / (len(meanCentered) - 1)
+                var = var / (len(meanCentered))
                 newRow.append(var)
             else:
                 #Calculate covariance
                     covar = 0
                     for i in range(len(meanCentered)):
                         covar += meanCentered[i][col] * meanCentered[i][row]
-                    covar = covar / (len(meanCentered) - 1)
+                    covar = covar / (len(meanCentered))
                     newRow.append(covar)
         end = time.time()
         returnVal.append(newRow)
@@ -93,22 +93,26 @@ def parseFaces(w,v):
     indexes = []
     for i in range(len(w)):
         indexes.append(i)
+    w = np.array(w)
+    v = np.array(v)
     indicies = np.array(indexes)
-    sortKey = w.argsort()
+    sortKey = np.argsort(w,axis=0)
     values = w[sortKey]
     vectors = v[sortKey]
     indicies = indicies[sortKey]
+    indicies = indicies.tolist()
     np.flip(vectors,0)
     np.flip(values,0)
-    np.flip(indicies,0)
-    print(indicies)
+    indicies.reverse()
     values = values[:uniqueFaces]
     vectors = vectors[:uniqueFaces]
-    indicies = vectors[:uniqueFaces]
-    arrNames = np.array(totalNames)
+    indicies = indicies[:uniqueFaces]
     for i in range(uniqueFaces):
-        names.append(arrNames[int(indicies[i])])
-        eigenfaces.append(vectors[i])
+        try:
+            names.append(totalNames[int(indicies[i])])
+            eigenfaces.append(vectors[i])
+        except:
+            print("Failed on type " + str(type(indicies[i])) + " for value " + str(indicies[i]))
 
 def displayNames():
     global names

@@ -24,6 +24,5 @@ print("Found eigenvalues and eigenvectors")
 print("Sorting faces")
 parseFaces(w,v)
 print("Faces sorted")
-displayNames()
 
 
